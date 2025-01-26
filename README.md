@@ -2,7 +2,7 @@
 finetune gpt4o to talk like your discord logs.
 
 ## usage
-get a discord log of your chats via https://github.com/Tyrrrz/DiscordChatExporter
+get a discord log of your chats via https://github.com/Tyrrrz/DiscordChatExporter (todo: explain where to find this stuff)
 ```bash
 ./DiscordChatExporter.Cli export -c $CHANNEL_ID -t $DISCORD_TOKEN -f json -o chats.json
 ```
