@@ -1,5 +1,6 @@
-*
-!*.py
-!*.js
-!README.md
-!.gitignore
+.DS_Store
+extension/dist
+model/*.gguf
+alpha
+package-lock.json
+node_modules
