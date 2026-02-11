@@ -208,6 +208,18 @@ def merge_with_existing(new_entries, existing_dataset):
 
 def main():
     """Main function to scrape Reddit and update dataset."""
+    # Show help if requested
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
+        print("Usage: python3 reddit_scraper.py [username] [limit]")
+        print()
+        print("Arguments:")
+        print("  username    Reddit username to scrape (default: B44ken)")
+        print("  limit       Maximum number of posts/comments to fetch (default: 100)")
+        print()
+        print("Example:")
+        print("  python3 reddit_scraper.py B44ken 50")
+        return 0
+    
     # Parse command line arguments
     username = sys.argv[1] if len(sys.argv) > 1 else 'B44ken'
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else 100

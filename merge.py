@@ -27,7 +27,18 @@ def attempt_add(convo, final_len_min=80, final_len_max=2000, min_msgs=2, max_msg
 
 
 for filename in glob.glob('*-*.json'):
-    messages = json.load(open(filename))['messages']
+    # Skip known non-Discord files
+    if filename in ['package-lock.json']:
+        continue
+    
+    try:
+        data = json.load(open(filename))
+        if 'messages' not in data:
+            continue
+        messages = data['messages']
+    except (json.JSONDecodeError, KeyError):
+        continue
+    
     conv = []
     last_time = None
 

@@ -223,6 +223,21 @@ def save_dataset(dataset: List[Dict[str, Any]], filename: str = 'dataset.json'):
 
 def main():
     """Main function to augment dataset."""
+    # Show help if requested
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
+        print("Usage: python3 augment.py [input_file] [output_file] [dropout_rate] [num_augmentations]")
+        print()
+        print("Arguments:")
+        print("  input_file          Input dataset JSON file (default: dataset.json)")
+        print("  output_file         Output dataset JSON file (default: same as input)")
+        print("  dropout_rate        Probability of dropping each sentence, 0.0-1.0 (default: 0.3)")
+        print("  num_augmentations   Number of augmented versions per entry (default: 3)")
+        print()
+        print("Examples:")
+        print("  python3 augment.py dataset.json dataset.json")
+        print("  python3 augment.py dataset.json augmented.json 0.4 2")
+        return 0
+    
     # Parse command line arguments
     input_file = sys.argv[1] if len(sys.argv) > 1 else 'dataset.json'
     output_file = sys.argv[2] if len(sys.argv) > 2 else input_file
