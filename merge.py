@@ -28,18 +28,9 @@ def attempt_add(convo, final_len_min=80, final_len_max=2000, min_msgs=2, max_msg
 
 
 for filename in glob.glob('*-*.json'):
-    # Skip known non-Discord files
-    if filename in ['package-lock.json']:
-        continue
-    
-    try:
-        data = json.load(open(filename))
-        if 'messages' not in data:
-            continue
-        messages = data['messages']
-    except (json.JSONDecodeError, KeyError):
-        continue
-    
+    if filename == 'package-lock.json': continue
+    messages = json.load(open(filename)).get('messages', [])
+    if not messages: continue
     conv = []
     last_time = None
 
@@ -70,41 +61,16 @@ elif out_type == 'llm':
             ])} for conv in all_convos]
     print(json.dumps(out, indent=2, ensure_ascii=False))
 elif out_type == 'dataset':
-    # New mode: output to dataset.json with source tracking
-    out = []
-    for conv in all_convos:
-        conv_id = generate_discord_id(conv)
-        entry = {
-            'source': f'discord-{conv_id}',
+    out = [{'source': f'discord-{generate_discord_id(conv)}',
             'text': '<|im_start|>system\ncontinue this discord conversation (you are b4444)<|im_end|>' + '\n'.join([
                 f'\n<|im_start|>{'assistant' if m['name'] == 'b4444' else 'user'}\n{m["name"]}: {m["content"]}<|im_end|>' for m in conv
-            ])
-        }
-        out.append(entry)
+            ])} for conv in all_convos]
     
-    # Load existing dataset if it exists
-    dataset_file = 'dataset.json'
-    existing = []
-    if os.path.exists(dataset_file):
-        try:
-            with open(dataset_file, 'r', encoding='utf-8') as f:
-                existing = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            pass
+    existing = json.load(open('dataset.json')) if os.path.exists('dataset.json') else []
+    existing_sources = {entry.get('source') for entry in existing}
+    added = sum(1 for entry in out if entry['source'] not in existing_sources and not existing.append(entry))
     
-    # Merge with existing, avoiding duplicates
-    existing_sources = {entry.get('source') for entry in existing if entry.get('source')}
-    added = 0
-    for entry in out:
-        if entry['source'] not in existing_sources:
-            existing.append(entry)
-            existing_sources.add(entry['source'])
-            added += 1
-    
-    # Save to dataset.json
-    with open(dataset_file, 'w', encoding='utf-8') as f:
-        json.dump(existing, f, indent=2, ensure_ascii=False)
-    
+    json.dump(existing, open('dataset.json', 'w'), indent=2, ensure_ascii=False)
     print(f'Added {added} new Discord entries to dataset.json (total: {len(existing)})', file=sys.stderr)
 elif out_type == 'stats':
     print(f'(total: {len(all_convos)})')
