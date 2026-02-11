@@ -1,14 +1,11 @@
-import json
-import glob
-import sys
+import json, glob, sys, os, hashlib
 from datetime import datetime
-all_convos = []
 
+all_convos = []
 
 def attempt_add(convo, final_len_min=80, final_len_max=2000, min_msgs=2, max_msgs=4):
     for msg in convo:
-        if '```' in msg['content']:
-            return
+        if '```' in msg['content']: return
         msg['content'] = msg['content'].strip()
     while convo and convo[-1]['name'] != 'b4444':
         convo = convo[:-1]
@@ -16,26 +13,21 @@ def attempt_add(convo, final_len_min=80, final_len_max=2000, min_msgs=2, max_msg
         return
     all_convos.append(convo[-max_msgs:])
 
-
 for filename in glob.glob('*-*.json'):
-    messages = json.load(open(filename))['messages']
-    conv = []
-    last_time = None
-
+    if filename == 'package-lock.json': continue
+    messages = json.load(open(filename)).get('messages', [])
+    if not messages: continue
+    conv, last_time = [], None
     for msg in messages:
-        cnt = msg['content'].strip()
-        time = datetime.fromisoformat(msg['timestamp'].replace('Z', '+00:00'))
-
+        cnt, time = msg['content'].strip(), datetime.fromisoformat(msg['timestamp'].replace('Z', '+00:00'))
         if last_time and (time - last_time).total_seconds() > 3600:
             attempt_add(conv)
             conv = []
-
         if conv and msg['author']['name'] == conv[-1]['name']:
             conv[-1]['content'] += '\n' + cnt
         else:
             conv.append({'name': msg['author']['name'], 'content': cnt})
         last_time = time
-
     attempt_add(conv)
 
 out_type = sys.argv[sys.argv.index('-t') + 1] if '-t' in sys.argv else 'stats'
@@ -45,8 +37,21 @@ if out_type == 'plain':
     print(f'(total: {len(all_convos)})')
 elif out_type == 'llm':
     out = [{'text': '<|im_start|>system\ncontinue this discord conversation (you are b4444)<|im_end|>' + '\n'.join([
-            f'\n<|im_start|>{'assistant' if m['name'] == 'b4444' else 'user'}\n{m["name"]}: {m["content"]}<|im_end|>' for m in conv
-            ])} for conv in all_convos]
+            f'\n<|im_start|>{'assistant' if m['name'] == 'b4444' else 'user'}\n{m["name"]}: {m["content"]}<|im_end|>' for m in conv])} 
+           for conv in all_convos]
     print(json.dumps(out, indent=2, ensure_ascii=False))
+elif out_type == 'dataset':
+    conv_id = lambda c: hashlib.sha256(''.join([f"{m['name']}:{m['content']}" for m in c]).encode()).hexdigest()[:16]
+    out = [{'source': f'discord-{conv_id(conv)}',
+            'text': '<|im_start|>system\ncontinue this discord conversation (you are b4444)<|im_end|>' + '\n'.join([
+                f'\n<|im_start|>{'assistant' if m['name'] == 'b4444' else 'user'}\n{m["name"]}: {m["content"]}<|im_end|>' for m in conv])} 
+           for conv in all_convos]
+    existing = json.load(open('dataset.json')) if os.path.exists('dataset.json') else []
+    sources = {e.get('source') for e in existing}
+    for e in out:
+        if e['source'] not in sources:
+            existing.append(e)
+    json.dump(existing, open('dataset.json', 'w'), indent=2, ensure_ascii=False)
+    print(f'{len(out)} discord entries ({len([e for e in out if e["source"] not in sources])} new)', file=sys.stderr)
 elif out_type == 'stats':
     print(f'(total: {len(all_convos)})')

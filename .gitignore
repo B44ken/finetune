@@ -4,3 +4,7 @@ model/*.gguf
 alpha
 package-lock.json
 node_modules
+dataset.json
+*_augmented.json
+__pycache__/
+*.pyc
