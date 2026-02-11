@@ -1,5 +1,5 @@
 const scrapeConvoDiscord = () => {
-    const bList = ["Bradley Boratto", "b4", "b4444"]
+    const bList = ["b4", "b4444"]
     const fmtName = (n: string) => bList.includes(n) ? 'b4444' : n.toLowerCase().replace(/[^a-z0-9]+/g, "-")
 
     const msgs = [...document.querySelectorAll('[id^="chat-messages"]')].map(m => {
@@ -55,7 +55,6 @@ document.onreadystatechange = () => {
     })
 }
 
-// place the suggested text after • (we do this by highlighting starting with/including • and insserting)
 const suggestDiscord = (text: string) => {
     const el = document.querySelector('[role="textbox"]') as HTMLDivElement | null
     if (!el) return
@@ -69,6 +68,7 @@ const suggestDiscord = (text: string) => {
     setTimeout(() => moveBeforeMarker(el), 0)
 }
 
+// ungodly selection DOM tree walking
 const selectFromMarker = (el: HTMLElement) => {
     const sel = window.getSelection()!
     sel.removeAllRanges()
@@ -83,7 +83,6 @@ const selectFromMarker = (el: HTMLElement) => {
         sel.addRange(range)
         return
     }
-    // no bullet — collapse to end
     sel.selectAllChildren(el)
     sel.collapseToEnd()
 }
@@ -131,7 +130,4 @@ const acceptSuggestion = () => {
     }
 }
 
-suggestDiscord('test dispatch')
-
-
-console.log({ ollamaFetch, scrapeConvoDiscord, dispatchDiscord: suggestDiscord })
+console.log({ ollamaFetch, scrapeConvoDiscord, suggestDiscord })
