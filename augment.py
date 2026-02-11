@@ -136,7 +136,11 @@ def augment_chatml_entry(entry: Dict[str, Any], dropout_rate: float = 0.3, num_a
         aug_entry = entry.copy()
         
         # Update source with augmentation suffix
-        original_source = entry.get('source', f'unknown-{random.randint(1000, 9999)}')
+        original_source = entry.get('source')
+        if not original_source:
+            # Log warning if source is missing - this shouldn't happen
+            print(f"Warning: Entry missing source field, skipping augmentation", file=sys.stderr)
+            return []
         aug_entry['source'] = f'{original_source}-aug-{idx}'
         
         # Replace content in ChatML format

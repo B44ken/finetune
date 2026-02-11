@@ -53,8 +53,9 @@ def scrape_reddit_user(username='B44ken', limit=100, use_mock=False):
         ]
     
     # User-Agent header is required by Reddit
+    # Using generic identifier since this is for personal use
     headers = {
-        'User-Agent': f'python:reddit_scraper:v1.0 (by /u/{username})'
+        'User-Agent': 'python:finetune_scraper:v1.0 (for dataset collection)'
     }
     
     try:
@@ -109,6 +110,9 @@ def scrape_reddit_user(username='B44ken', limit=100, use_mock=False):
 def convert_to_chatml(posts):
     """
     Converts Reddit posts to ChatML format.
+    
+    Note: The persona 'b4444' is the assistant identity used across all data sources
+    (Reddit posts from u/B44ken are formatted as b4444 responses).
     
     Args:
         posts: List of Reddit post dictionaries

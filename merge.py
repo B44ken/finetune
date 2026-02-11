@@ -10,8 +10,9 @@ all_convos = []
 def generate_discord_id(convo):
     """Generate a unique ID for a Discord conversation based on content."""
     # Create a hash of the conversation content for a unique identifier
+    # Using SHA256 and 16 chars for better collision resistance
     content = ''.join([f"{m['name']}:{m['content']}" for m in convo])
-    return hashlib.md5(content.encode()).hexdigest()[:12]
+    return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
 def attempt_add(convo, final_len_min=80, final_len_max=2000, min_msgs=2, max_msgs=4):

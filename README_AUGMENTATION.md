@@ -176,8 +176,10 @@ The `source` field enables:
 ## Requirements
 
 ```bash
-pip install requests nltk
+pip install requests
 ```
+
+Note: The scripts use Python's built-in `re` module for sentence splitting. For more advanced sentence tokenization, you could optionally use `nltk` or `spacy`, but they are not required.
 
 ## Notes
 
