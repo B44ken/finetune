@@ -78,7 +78,7 @@ def scrape_reddit_user(username='B44ken', limit=100, use_mock=False):
         
         print(f"Fetched {len(posts)} posts/comments", file=sys.stderr)
         return posts
-    except:
+    except Exception:
         print("Falling back to mock data", file=sys.stderr)
         return scrape_reddit_user(username, limit, use_mock=True)
 

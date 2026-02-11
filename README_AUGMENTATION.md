@@ -50,7 +50,7 @@ python3 merge.py -t dataset
 - `-t dataset`: Add to `dataset.json` with source tracking
 
 **Source Format:**
-- Discord entries: `discord-{hash}` (MD5 hash of conversation content)
+- Discord entries: `discord-{hash}` (SHA256 hash of conversation content, 16 chars)
 
 **Example:**
 ```bash

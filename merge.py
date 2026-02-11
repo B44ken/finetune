@@ -68,7 +68,11 @@ elif out_type == 'dataset':
     
     existing = json.load(open('dataset.json')) if os.path.exists('dataset.json') else []
     existing_sources = {entry.get('source') for entry in existing}
-    added = sum(1 for entry in out if entry['source'] not in existing_sources and not existing.append(entry))
+    added = 0
+    for entry in out:
+        if entry['source'] not in existing_sources:
+            existing.append(entry)
+            added += 1
     
     json.dump(existing, open('dataset.json', 'w'), indent=2, ensure_ascii=False)
     print(f'Added {added} new Discord entries to dataset.json (total: {len(existing)})', file=sys.stderr)
